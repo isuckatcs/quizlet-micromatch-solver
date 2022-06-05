@@ -1,43 +1,73 @@
+var de = [],
+    hu = [],
+    terms = Quizlet.matchModeData.terms,
+    event = new PointerEvent('pointerdown');
+
+for (var i = 0; i < terms.length; i++) {
+    de[i] = terms[i].word;
+    hu[i] = terms[i].definition;
+}
+
 document
     .querySelector('.UIButton--hero')
     .addEventListener('click', function () {
-        setTimeout(bot, 8);
-    });
-var currentCards = [],
-    current,
-    word,
-    def,
-    k,
-    j;
-var terms = Quizlet.matchModeData.terms;
-var length = terms.length;
-var event = new PointerEvent('pointerdown');
+        setTimeout(function () {
+            var currentCards = getItems().currentList,
+                currentElements = getItems().elements,
+                clicked = [],
+                x = 0;
 
-function bot() {
-    currentCards = document.querySelectorAll('.MatchModeQuestionGridTile');
-    currentCards[0].dispatchEvent(event);
-    current = currentCards[0].textContent;
-    j(k());
-    if (currentCards.length > 1) {
-        setTimeout(bot, 500);
+            var bot = function () {
+                if (clicked.indexOf(x) === -1) {
+                    currentElements[x].dispatchEvent(event);
+
+                    var pair = findPair(currentElements[x].innerText);
+
+                    var index = currentCards.indexOf(pair);
+
+                    currentElements[index].dispatchEvent(event);
+
+                    clicked.push(index);
+                }
+
+                x++;
+                bot();
+            };
+
+            bot();
+        }, delay);
+    });
+
+var delay = parseInt(
+    prompt(
+        'What time (in milliseconds) do you want to achieve? (1s = 1000ms)',
+        5400
+    )
+);
+
+delay += 40;
+
+document.querySelector('.UIButton--hero').click();
+
+var getItems = function () {
+    var elements,
+        currentList = [];
+
+    elements = document.querySelectorAll('.MatchModeQuestionGridTile');
+
+    for (var i = 0; i < elements.length; i++) {
+        currentList[i] = elements[i].innerText;
     }
-    function k() {
-        for (k = 0; k < length; k++) {
-            if (terms[k].definition === current) {
-                word = terms[k].word;
-                return word;
-            } else if (terms[k].word === current) {
-                def = terms[k].definition;
-                return def;
-            }
-        }
+
+    return {
+        currentList,
+        elements,
+    };
+};
+
+var findPair = function (current) {
+    for (var i = 0; i < terms.length; i++) {
+        if (current === de[i]) return hu[i];
+        else if (current === hu[i]) return de[i];
     }
-    function j(val) {
-        for (j = 0; j < currentCards.length; j++) {
-            if (currentCards[j].textContent === val) {
-                currentCards[j].dispatchEvent(event);
-                break;
-            }
-        }
-    }
-}
+};
