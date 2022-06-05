@@ -1,73 +1,80 @@
-var de = [],
-    hu = [],
-    terms = Quizlet.matchModeData.terms,
-    event = new PointerEvent('pointerdown');
+{
+    let getTerms = function () {
+        let def = [],
+            word = [],
+            terms = Quizlet.matchModeData.terms;
 
-for (var i = 0; i < terms.length; i++) {
-    de[i] = terms[i].word;
-    hu[i] = terms[i].definition;
-}
+        for (let i = 0; i < terms.length; i++) {
+            def[i] = terms[i].word;
+            word[i] = terms[i].definition;
+        }
 
-document
-    .querySelector('.UIButton--hero')
-    .addEventListener('click', function () {
-        setTimeout(function () {
-            var currentCards = getItems().currentList,
-                currentElements = getItems().elements,
-                clicked = [],
-                x = 0;
-
-            var bot = function () {
-                if (clicked.indexOf(x) === -1) {
-                    currentElements[x].dispatchEvent(event);
-
-                    var pair = findPair(currentElements[x].innerText);
-
-                    var index = currentCards.indexOf(pair);
-
-                    currentElements[index].dispatchEvent(event);
-
-                    clicked.push(index);
-                }
-
-                x++;
-                bot();
-            };
-
-            bot();
-        }, delay);
-    });
-
-var delay = parseInt(
-    prompt(
-        'What time (in milliseconds) do you want to achieve? (1s = 1000ms)',
-        5400
-    )
-);
-
-delay += 40;
-
-document.querySelector('.UIButton--hero').click();
-
-var getItems = function () {
-    var elements,
-        currentList = [];
-
-    elements = document.querySelectorAll('.MatchModeQuestionGridTile');
-
-    for (var i = 0; i < elements.length; i++) {
-        currentList[i] = elements[i].innerText;
-    }
-
-    return {
-        currentList,
-        elements,
+        return {
+            def: def,
+            word: word,
+        };
     };
-};
 
-var findPair = function (current) {
-    for (var i = 0; i < terms.length; i++) {
-        if (current === de[i]) return hu[i];
-        else if (current === hu[i]) return de[i];
-    }
-};
+    let getObjects = function () {
+        let text = [],
+            elem = document.querySelectorAll('.MatchModeQuestionGridTile');
+
+        for (let i = 0; i < 12; i++) {
+            text[i] = elem[i].innerText;
+        }
+
+        return {
+            text,
+            elem,
+        };
+    };
+
+    let findPair = function (current, terms) {
+        for (let i = 0; i < terms.def.length; i++) {
+            if (current === terms.def[i]) return terms.word[i];
+            else if (current === terms.word[i]) return terms.def[i];
+        }
+    };
+
+    let bot = function (botTerms, botObjects) {
+        let event = new PointerEvent('pointerdown'),
+            clicked = [],
+            x = 0;
+
+        while (x < botObjects.text.length) {
+            if (clicked.indexOf(x) === -1) {
+                botObjects.elem[x].dispatchEvent(event);
+
+                let index = botObjects.text.indexOf(
+                    findPair(botObjects.text[x], botTerms)
+                );
+                clicked.push(index);
+
+                botObjects.elem[index].dispatchEvent(event);
+            }
+            x++;
+        }
+    };
+
+    let init = function () {
+        let delay = parseInt(
+            prompt(
+                'What time (in milliseconds) do you want to achieve? (1s = 1000ms)',
+                5400
+            )
+        );
+        delay += 40;
+
+        document
+            .querySelector('.UIButton--hero')
+            .addEventListener('click', function () {
+                setTimeout(function () {
+                    bot(getTerms(), getObjects());
+                }, delay);
+            });
+
+        document.querySelector('.UIButton--hero').click();
+    };
+
+    init();
+}
