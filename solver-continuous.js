@@ -87,7 +87,7 @@
     };
 
     let callBack = time => {
-        let delay = parseInt(time * 1000);
+        let delay = parseInt(time * 1000 - 40);
 
         setTimeout(() => bot(getTerms(), getObjects(), delay), delay / 12);
     };
