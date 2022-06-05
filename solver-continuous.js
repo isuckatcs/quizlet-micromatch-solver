@@ -54,22 +54,32 @@
     let bot = (botTerms, botObjects, delay, x = 0, clicked = []) => {
         let event = new PointerEvent('pointerdown');
 
-        if (clicked.indexOf(x) === -1 && clicked.length < 6) {
+        if (clicked.indexOf(x) === -1) {
             botObjects.elem[x].dispatchEvent(event);
 
             let index = botObjects.text.indexOf(
                 findPair(botObjects.text[x], botTerms)
             );
 
-            botObjects.elem[index].dispatchEvent(event);
+            if (delay > 0 && clicked.length < 6) {
+                setTimeout(() => {
+                    botObjects.elem[index].dispatchEvent(event);
 
-            clicked.push(index);
+                    clicked.push(index);
 
-            x++;
+                    x++;
+                    setTimeout(function () {
+                        bot(botTerms, botObjects, delay, x, clicked);
+                    }, delay / 12);
+                }, delay / 12);
+            } else {
+                botObjects.elem[index].dispatchEvent(event);
 
-            setTimeout(function () {
+                clicked.push(index);
+
+                x++;
                 bot(botTerms, botObjects, delay, x, clicked);
-            }, delay / 6);
+            }
         } else if (clicked.length < 6) {
             x++;
             bot(botTerms, botObjects, delay, x, clicked);
@@ -79,7 +89,7 @@
     let callBack = time => {
         let delay = parseInt(time * 1000);
 
-        setTimeout(() => bot(getTerms(), getObjects(), delay), delay / 6);
+        setTimeout(() => bot(getTerms(), getObjects(), delay), delay / 12);
     };
 
     let init = () => {
