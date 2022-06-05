@@ -1,4 +1,15 @@
 {
+    let htmlManip = function () {
+        let html =
+            '<h3 class="UIHeading--three" style="text-align: center; margin: 35px 0 15px 0; width: 90%; position: relative; left: 50%; transform: translateX(-50%);">What time do you wish to achieve?</h3><p style="text-align: center; margin: 0 0 35px 0; width: 90%; position: relative; left: 50%; transform: translateX(-50%);">Note that Quizlet can\'t store a time lower than 0.5s</p><input type="text" id="time" name="time" value="--" style="color: #455358; -webkit-appearance: none;-moz-appearance: none; appearance: none; border: solid #3ccfcf;border-radius: .25rem;display: inline-block;font: inherit;max-width: 100%;padding: .75rem 1.5rem; font-weight: 600; font-size: .875rem; line-height: 1.285714285714286; transition: all .12s cubic-bezier(.47,0,.745,.715); width: 80px; height:50px; position:relative; left:50%;transform:translateX(-50%); text-align:center; padding:0px;"></input>';
+        document
+            .querySelector('.UIModalBody')
+            .insertAdjacentHTML('beforeend', html);
+        document.getElementById('time').addEventListener('click', function (e) {
+            e.target.value = '';
+        });
+    };
+
     let getTerms = function () {
         let def = [],
             word = [],
@@ -56,24 +67,33 @@
         }
     };
 
+    let callBack = function () {
+        let time = document.getElementById('time').value;
+
+        if (time !== '--' && time !== '') {
+            let delay = parseInt(time * 1000);
+            delay += 40;
+
+            setTimeout(function () {
+                bot(getTerms(), getObjects());
+            }, delay);
+        }
+    };
+
     let init = function () {
-        let delay = parseInt(
-            prompt(
-                'What time (in milliseconds) do you want to achieve? (1s = 1000ms)',
-                5400
-            )
-        );
-        delay += 40;
+        htmlManip();
 
         document
             .querySelector('.UIButton--hero')
-            .addEventListener('click', function () {
-                setTimeout(function () {
-                    bot(getTerms(), getObjects());
-                }, delay);
-            });
+            .addEventListener('click', callBack);
 
-        document.querySelector('.UIButton--hero').click();
+        document
+            .getElementById('time')
+            .addEventListener('keydown', function (e) {
+                if (e.keyCode === 13) {
+                    document.querySelector('.UIButton--hero').click();
+                }
+            });
     };
 
     init();
